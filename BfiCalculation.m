@@ -13,7 +13,8 @@ function F=BfiCalculation()
     [x,y,xr,yr]=SelectRoi('ROI of refernce',101);
     close
     % mean reference intensity 
-    mean_Ir=mean2(ref_image_data(int16(y):int16(y+yr),int16(x):int16(x+xr)));
+    mean_Ir=mean2(ref_image_data(y:y+yr, x:x+xr ...
+        ));
     
 %% set ROI of image and FFT image
    
@@ -71,8 +72,6 @@ function F=BfiCalculation()
         roi_fft=mean2(roi_fft);
     
         image_fft_shift_abs = roi_fft;
-        FFTimage_kj(:,:,i) = image_fft_shift_abs;
-
         
         F(i) = mean(image_fft_shift_abs,"all")/(mean_Is*mean_Ir);
     end
@@ -83,11 +82,10 @@ function F=BfiCalculation()
 
     fs=0.1;
     time=fs:fs:len*fs;
-    plot(time,F)
+    plot(time, 1./F)
     xlabel('time')
-    ylabel('F')
+    ylabel('1/F')
     title("F value","FontSize",10)
-
 end
 
 
