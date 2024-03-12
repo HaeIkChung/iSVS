@@ -1,0 +1,14 @@
+function [x,y,r1,r2]=SelectRoi(title,range)
+    %select ROI 
+    roi = drawpoint("Deletable",true,"Color",'r');
+    x=roi.Position(1);
+    y=roi.Position(2);
+    delete(roi)
+
+    roi = drawrectangle('Position',[x-(range-1)/2),y-50,range,range],'Label',title,'StripeColor','y');
+    x=roi.Position(1);
+    y=roi.Position(2);
+    r1=roi.Position(3);
+    r2=roi.Position(4);
+    pause    
+end
