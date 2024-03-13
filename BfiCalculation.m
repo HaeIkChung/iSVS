@@ -82,10 +82,33 @@ function F=BfiCalculation()
 
     fs=0.1;
     time=fs:fs:len*fs;
-    plot(time, 1./F)
+    plot(time, F)
+    hold on
+    xline(60)
+    hold on
+    xline(120)
     xlabel('time')
-    ylabel('1/F')
+    ylabel('F')
     title("F value","FontSize",10)
+    
+    beta=1;
+    T=len*fs;
+    tau=zeros(1,len);
+
+    for i = 1:len
+       tau(i)=(T+sqrt(T^2-2*((T^2)/beta)*(F(i)-1+beta)))/2;
+    end
+    
+    figure
+    plot(time, 1./tau)
+    hold on
+    xline(60)
+    hold on
+    xline(120)
+    xlabel('time')
+    ylabel('BFI')
+    title("BFI-iSVS","FontSize",10)
+
 end
 
 

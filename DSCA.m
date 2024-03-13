@@ -44,6 +44,10 @@ function BFI=DSCA()
     fs=0.1;
     time=fs:fs:len*fs;
     plot(time,BFI)
+    hold on
+    xline(60)
+    hold on
+    xline(120)
     xlabel('time')
     ylabel('BFI')
     title("BFI-DSCA","FontSize",10)
