@@ -91,12 +91,14 @@ function F=BfiCalculation()
     ylabel('F')
     title("F value","FontSize",10)
     
-    beta=1;
-    T=len*fs;
+    beta=0.7;
+    T=2*10^(-3);
     tau=zeros(1,len);
 
     for i = 1:len
-       tau(i)=(T+sqrt(T^2-2*((T^2)/beta)*(F(i)-1+beta)))/2;
+       syms temp
+       eqn = (1 - beta) + beta*2*(temp/T)==F(i); 
+       tau(i)=vpasolve(eqn, temp);
     end
     
     figure
