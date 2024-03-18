@@ -13,8 +13,7 @@ function F=BfiCalculation()
     [x,y,xr,yr]=SelectRoi('ROI of refernce',101);
     close
     % mean reference intensity 
-    mean_Ir=mean2(ref_image_data(y:y+yr, x:x+xr ...
-        ));
+    mean_Ir=mean2(ref_image_data(y:y+yr, x:x+xr));
     
 %% set ROI of image and FFT image
    
@@ -91,14 +90,13 @@ function F=BfiCalculation()
     ylabel('F')
     title("F value","FontSize",10)
     
-    beta=0.7;
+    beta=1;
     T=2*10^(-3);
     tau=zeros(1,len);
 
     for i = 1:len
-       syms temp
-       eqn = (1 - beta) + beta*2*(temp/T)==F(i); 
-       tau(i)=vpasolve(eqn, temp);
+       
+       tau(i)=2*T*(1-(1-F(i))/beta);
     end
     
     figure
