@@ -1,4 +1,4 @@
-function F=BfiCalculation()
+function F=BfiCalculation2()
 
     clc, clear, close
 
@@ -7,19 +7,45 @@ function F=BfiCalculation()
     % read reference image
     ref_image=Tiff('ref.tiff','r');
     ref_image_data=read(ref_image);
-    imagesc(ref_image_data)
-    axis image
-    colorbar
 
+%% subtract noise 
+    current_folder=pwd;
+    cd ..\
+    cd("data\noise\")
+    
+    %subtraction noise
+
+    temp=dir('*.tiff');
+    len=size(temp,1);
+    s=size(ref_image_data,1);
+    IMG=uint16(zeros(s,s));
+    
+    for i = 1:len
+        num = num2str(i);
+        str = strcat("ss_single_",num,".tiff");
+        tiff = Tiff(str);
+        r = read(tiff);
+        IMG(:,:) = (IMG(:,:) + r);
+    end
+    IMG=IMG./len;
+    
+
+    ref_image_data=imsubtract(ref_image_data,IMG);
+    imagesc(ref_image_data)
+    axis image    
+    colorbar
+    
+    cd(current_folder)
     [x,y,xr,yr]=SelectRoi('ROI of refernce',101, 1);
-    close
+
     % mean reference intensity 
+    %ref_image_data=log(ref_image_data(:,:));
     mean_Ir=mean2(ref_image_data(y:y+yr, x:x+xr));
+    cd(current_folder)
     
 %% set ROI of image and FFT image
    
     %find location of images
-    current_folder=pwd;
     cd ..\
     MyData=uigetdir();
     cd(MyData)
@@ -32,6 +58,7 @@ function F=BfiCalculation()
     %select ROI 
     ref_sam_image=Tiff('ss_single_1.tiff','r');
     ref_sam_image_data=read(ref_sam_image);
+    ref_sam_image_data=imsubtract(ref_sam_image_data,IMG);
     colorbar
     cd(current_folder)   
     close
@@ -43,8 +70,6 @@ function F=BfiCalculation()
     axis image
     colorbar
     [x2,y2,xr2,yr2]=SelectRoi('ROI of interference', 11, 2);
-
-    [x3,y3,xr3,yr3]=SelectRoi('ROI of sample', 11, 1);
     close
 
 %% fft shift and image plot
@@ -57,18 +82,38 @@ function F=BfiCalculation()
         str = strcat("ss_single_",num,".tiff");
         tiff = Tiff(str);
         r = read(tiff);
+        r = imsubtract(r,IMG);
         image_fft = fft2(r(y:y+yr, x:x+xr));
         image_fft_shift = fftshift(image_fft);
         
-        roi_fft = image_fft_shift(y2:y2+yr2, x2:x2+xr2);
-        Is = image_fft_shift(y3:y3+yr3, x3:x3+xr3);
+        %set roi image from fft image
+        roi_fft_1 = image_fft_shift(y2:y2+yr2, x2:x2+xr2);
+        y4=round(88-y2+((yr2-1)/2));
+        x4=round(88-x2+((xr2-1)/2));
+        roi_fft_2 = image_fft_shift(y4:y4+yr2, x4:x4+xr2);
+
+        %set sample image & calculate I_s
+        Is = image_fft_shift;
         
+        for j = y2:y2+yr2
+            for k = x2:x2+xr2
+                Is(j,k)=0.0;
+            end
+        end
+
+        for j = y4:y4+yr2
+            for k = x4:x4+xr2
+                Is(j,k)=0.0;
+            end
+        end
+
         Is=ifft2(Is);
         Is=abs(ifftshift(Is));
         mean_Is=mean2(Is);
-
-        roi_fft=ifft2(roi_fft);
-        roi_fft=abs(ifftshift(roi_fft));
+        
+        %calculate I_interference
+        roi_fft=ifft2(roi_fft_1+roi_fft_2);
+        roi_fft=abs(roi_fft);
         roi_fft=mean2(roi_fft);
     
         image_fft_shift_abs = roi_fft;
@@ -95,8 +140,7 @@ function F=BfiCalculation()
     T=2*10^(-3);
     tau=zeros(1,len);
 
-    for i = 1:len
-       
+    for i = 1:len    
        tau(i)=2*T*(1-(1-F(i))/beta);
     end
     

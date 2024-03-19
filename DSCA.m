@@ -16,7 +16,7 @@ function BFI=DSCA()
     imagesc(ref_image_data)
     colorbar
     cd(current_folder)
-    [x,y,xr,yr]=SelectRoi('ROI of refence',101);  
+    [x,y,xr,yr]=SelectRoi('ROI of refence',101,1);  
     close
 
     BFI=zeros(len);
